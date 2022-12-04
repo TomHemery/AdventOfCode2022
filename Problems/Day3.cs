@@ -1,4 +1,3 @@
-using System.ComponentModel;
 namespace AdventOfCode2022
 {
     public class Day3 : Problem

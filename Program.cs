@@ -9,7 +9,7 @@ namespace AdventOfCode2022
             Stopwatch watch = new Stopwatch();
 
             watch.Start();
-            Problem p = new Day3("PuzzleInputs/day3.txt");
+            Problem p = new Day4("PuzzleInputs/day4.txt");
             watch.Stop();
             
             Console.WriteLine("Constructed puzzle in: " + (watch.ElapsedTicks / 10) + "μs");

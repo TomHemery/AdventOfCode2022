@@ -36,7 +36,7 @@ namespace AdventOfCode2022
             int start = 1; // skip the cd /
             calculateDirectorySize(ref start);
             int totalSize = 0;
-            foreach (int dirSize in dirSizes.Select(x => x > 100000 ? 0 : x)) {
+            foreach (int dirSize in dirSizes.Where(x => x <= 100000)) {
                 totalSize += dirSize;
             }
             return totalSize.ToString();

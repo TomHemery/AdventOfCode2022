@@ -3,7 +3,7 @@ namespace AdventOfCode2022
     class Day7 : Problem
     {
 
-        protected List<long> dirSizes = new();
+        protected List<int> dirSizes = new();
 
 
         public Day7(string inputPath) : base(inputPath)

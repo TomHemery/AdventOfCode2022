@@ -28,16 +28,11 @@ namespace AdventOfCode2022
 
         public void MoveTail((int x, int y) headPos, ref (int x, int y) tailPos)
         {
-            if (Math.Abs(headPos.x - tailPos.x) == 2) {
-                tailPos.x += Math.Sign(headPos.x - tailPos.x);
-                if (tailPos.y != headPos.y) {
-                    tailPos.y += Math.Sign(headPos.y - tailPos.y);
-                }
-            } else if (Math.Abs(headPos.y - tailPos.y) == 2) {
-                tailPos.y += Math.Sign(headPos.y - tailPos.y);
-                if (tailPos.x != headPos.x) {
-                    tailPos.x += Math.Sign(headPos.x - tailPos.x);
-                }
+            int xDiff = headPos.x - tailPos.x;
+            int yDiff = headPos.y - tailPos.y;
+            if (Math.Abs(xDiff) == 2 || Math.Abs(yDiff) == 2) {
+                tailPos.x += Math.Sign(xDiff);
+                tailPos.y += Math.Sign(yDiff);
             } 
         }
 

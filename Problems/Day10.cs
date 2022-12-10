@@ -11,7 +11,6 @@ namespace AdventOfCode2022
         protected int calculateSignalStrength(int counter, int x) 
         {
             if ((counter - 20) % 40 == 0) {
-                Console.WriteLine(String.Format("Signal strength at cycle {0} is {1}", counter, counter * x));
                 return counter * x;
             }
             return 0;

@@ -6,14 +6,14 @@ namespace AdventOfCode2022
         public static List<Monkey> allMonkeys = new();
         protected int index = 0;
 
-        Queue<int> items;
+        Queue<long> items;
 
-        protected int testValue = 0;
+        public int divisor {get; protected set;} = 0;
         protected int trueTarget = 0;
         protected int falseTarget = 0;
 
         protected char operatorSymbol;
-        protected int operand = 0;
+        protected long operand = 0;
         protected bool useOldValue = false;
 
         public int timesInspected {get; private set;} = 0;
@@ -28,7 +28,7 @@ namespace AdventOfCode2022
             allMonkeys.Add(this);
             index = allMonkeys.Count() - 1;
 
-            items = new(itemString.Split(": ")[1].Split(", ").Select(x => int.Parse(x)));
+            items = new(itemString.Split(": ")[1].Split(", ").Select(x => long.Parse(x)));
 
             string[] operationParts = operationString.Split(" = ")[1].Split(' ');
             operatorSymbol = operationParts[1][0];
@@ -38,36 +38,33 @@ namespace AdventOfCode2022
                 operand = int.Parse(operationParts[2]);
             }
             
-            testValue = int.Parse(testString.Split(' ').Last());
+            divisor = int.Parse(testString.Split(' ').Last());
             trueTarget = int.Parse(trueString.Split(' ').Last());
             falseTarget = int.Parse(falseString.Split(' ').Last());
         }
 
-        public int ApplyOperation(int value)
+        public long ApplyOperation(long value)
         {
             timesInspected ++;
-            float result;
 
             if (useOldValue) {
                 operand = value;
             }
 
             if (operatorSymbol == '+') {
-                result = value + operand;
-            } else {
-                result = value * operand;
+                return value + operand;
             }
 
-            return (int)Math.Floor(result / 3);
+            return value * operand;
         }
 
-        public bool TestCondition(int value) {
-            return value % testValue == 0;
+        public bool TestCondition(long value) {
+            return value % divisor == 0;
         }
 
-        public void PerformThrow(int item)
+        public void PerformThrow(long item, Func<long, long> reduce)
         {
-            item = ApplyOperation(item);
+            item = reduce(ApplyOperation(item));
             if (TestCondition(item)) {
                 allMonkeys[trueTarget].AddItem(item);
             } else {
@@ -75,14 +72,14 @@ namespace AdventOfCode2022
             }
         }
 
-        public void TakeTurn()
+        public void TakeTurn(Func<long, long> reduce)
         {
             while (items.Count() > 0) {
-                PerformThrow(items.Dequeue());
+                PerformThrow(items.Dequeue(), reduce);
             }
         }
 
-        public void AddItem(int item) 
+        public void AddItem(long item) 
         {
             items.Enqueue(item);
         }
@@ -90,10 +87,11 @@ namespace AdventOfCode2022
         public void LogDescription()
         {
             Console.WriteLine(string.Format(
-                "Monkey {0} carrying {1} items: [{2}]", 
+                "Monkey {0} carrying {1} items: [{2}]. Inspection count: {3}", 
                 index, 
                 items.Count(),
-                string.Join(',', items.Select(x => x.ToString()))
+                string.Join(',', items.Select(x => x.ToString())),
+                timesInspected
             ));
         }
 

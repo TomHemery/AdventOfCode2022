@@ -1,4 +1,3 @@
-using System.Text;
 namespace AdventOfCode2022
 {
     class Day11 : Problem
@@ -32,7 +31,7 @@ namespace AdventOfCode2022
             resetMonkeys();
             for (int i = 0; i < 20; i++) {
                 foreach (Monkey monkey in Monkey.allMonkeys) {
-                    monkey.TakeTurn();
+                    monkey.TakeTurn((x => x / 3));
                 }
             }
 
@@ -42,7 +41,17 @@ namespace AdventOfCode2022
 
         public override string Part2()
         {
-            throw new NotImplementedException();
+            resetMonkeys();
+            int lcm = Monkey.allMonkeys.Select(m => m.divisor).Aggregate((a, b) => a * b);
+
+            for (int i = 0; i < 10000; i++) {
+                foreach (Monkey monkey in Monkey.allMonkeys) {
+                    monkey.TakeTurn((x => x % lcm));
+                }
+            }
+
+            IEnumerable<int> inspectionCounts = Monkey.allMonkeys.Select(x => x.timesInspected).OrderByDescending(x => x);
+            return (((long)inspectionCounts.First()) * ((long)inspectionCounts.Skip(1).First())).ToString();
         }
     }
 }

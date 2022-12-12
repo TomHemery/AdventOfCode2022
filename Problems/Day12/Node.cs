@@ -15,19 +15,21 @@ namespace AdventOfCode2022
             this.height = height;
         }
 
-        public void FindNeighbours(Dictionary<(int x, int y), Node> allNodes) {
-            if (allNodes.ContainsKey((position.x - 1, position.y)) && height + 1 >= allNodes[(position.x - 1, position.y)].height) {
+        public void FindNeighbours(Dictionary<(int x, int y), Node> allNodes, Func<int, int, bool> validNeighbour) {
+            if (allNodes.ContainsKey((position.x - 1, position.y))) {
                 neighbours.Add(allNodes[(position.x - 1, position.y)]);
             }
-            if (allNodes.ContainsKey((position.x + 1, position.y)) && height + 1 >= allNodes[(position.x + 1, position.y)].height) {
+            if (allNodes.ContainsKey((position.x + 1, position.y))) {
                 neighbours.Add(allNodes[(position.x + 1, position.y)]);
             }
-            if (allNodes.ContainsKey((position.x, position.y - 1)) && height + 1 >= allNodes[(position.x, position.y - 1)].height) {
+            if (allNodes.ContainsKey((position.x, position.y - 1))) {
                 neighbours.Add(allNodes[(position.x, position.y - 1)]);
             }
-            if (allNodes.ContainsKey((position.x, position.y + 1)) && height + 1 >= allNodes[(position.x, position.y + 1)].height) {
+            if (allNodes.ContainsKey((position.x, position.y + 1))) {
                 neighbours.Add(allNodes[(position.x, position.y + 1)]);
             }
+
+            neighbours = neighbours.Where(x => validNeighbour(height, x.height)).ToList();
         }
     }
 }

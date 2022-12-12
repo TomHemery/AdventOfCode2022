@@ -4,7 +4,7 @@ namespace AdventOfCode2022
     {
         protected Dictionary<(int x, int y), Node> allNodes = new();
         protected Node? part1StartNode;
-        protected Node? destNode;
+        protected Node? highPoint;
 
         public Day12(string inputPath) : base(inputPath)
         {
@@ -14,51 +14,46 @@ namespace AdventOfCode2022
                         part1StartNode = new Node((x, y), 0);
                         allNodes[(x, y)] = (part1StartNode);
                     } else if (character == 'E') {
-                        destNode = new Node((x, y), 25);
-                        allNodes[(x, y)] = (destNode);
+                        highPoint = new Node((x, y), 25);
+                        allNodes[(x, y)] = (highPoint);
                     } else {
                         allNodes[(x, y)] = (new Node((x, y), character - 'a'));
                     }
                 }
             }
-
-            foreach (Node node in allNodes.Values) {
-                node.FindNeighbours(allNodes);
-            }
         }
 
         public override string Part1()
         {
-            if (part1StartNode == null || destNode == null) {
+            if (part1StartNode == null || highPoint == null) {
                 return "Missing start or destination node";
             }
 
-            return ShortestPathBetween(part1StartNode, destNode).ToString();
+            return ShortestPath((h1, h2) => h1 + 1 >= h2, part1StartNode, highPoint).ToString();
         }
 
         public override string Part2()
         {
-            if (destNode == null) {
-                return "Missing destination node";
+            if (highPoint == null) {
+                return "Missing high point node";
             }
 
             int shortestPath = int.MaxValue;
-            var startingPoints = allNodes.Values.Where(x => x.height == 0);
-            foreach (Node startNode in startingPoints) {
-                try {
-                    int pathFromHere = ShortestPathBetween(startNode, destNode);
-                    if (pathFromHere <= shortestPath) {
-                        shortestPath = pathFromHere;
-                    }
-                } catch (NoPathException) { // no path exists
-                    continue;
+            var lowPoints = allNodes.Values.Where(x => x.height == 0);
+            ShortestPath((h1, h2) => h1 <= h2 + 1, highPoint);
+
+            foreach (Node node in lowPoints) {
+                if (shortestPath > node.distFromStart) {
+                    shortestPath = node.distFromStart;
                 }
             }
+
             return shortestPath.ToString();
         }
 
-        protected int ShortestPathBetween(Node startNode, Node destNode) {
-            ResetNodes();
+        // Djikstra with optional destination node, validNeighbour funcion takes heights and tells us if 2 nodes can be neighbours
+        protected int ShortestPath(Func<int, int, bool> validNeighbour, Node startNode, Node ?destNode = null) {
+            ResetNodes(validNeighbour);
             startNode.distFromStart = 0;
 
             PriorityQueue<Node, int> nodeQueue = new PriorityQueue<Node, int>();
@@ -71,13 +66,13 @@ namespace AdventOfCode2022
                     continue;
                 }
 
-                if (curr == destNode) {
+                if (destNode != null && curr == destNode) {
                     return curr.distFromStart;
                 }
                 
                 curr.visited = true;
+                int dist = curr.distFromStart + 1;
                 foreach (Node neighbour in curr.neighbours.Where(x => !x.visited)) {
-                    int dist = curr.distFromStart + 1;
                     if (dist <= neighbour.distFromStart) {
                         neighbour.distFromStart = dist;
                         nodeQueue.Enqueue(neighbour, dist);
@@ -85,18 +80,16 @@ namespace AdventOfCode2022
                 }
             }
 
-            throw new NoPathException();
+            return 0;
         }
 
-        protected void ResetNodes()
+        protected void ResetNodes(Func<int, int, bool> validNeighbour)
         {
             foreach (Node n in allNodes.Values) {
                 n.distFromStart = int.MaxValue;
                 n.visited = false;
+                n.FindNeighbours(allNodes, validNeighbour);
             }
         }
     }
-
-    [System.Serializable]
-    public class NoPathException : System.Exception {}
 }

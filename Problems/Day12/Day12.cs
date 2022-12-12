@@ -53,7 +53,7 @@ namespace AdventOfCode2022
             return shortestPath.ToString();
         }
 
-        // Djikstra with optional destination node, validNeighbour funcion takes heights and tells us if 2 nodes can be neighbours
+        // Djikstra with optional destination node
         protected int ShortestPath(Node startNode, Node ?destNode = null) {
             startNode.distFromStart = 0;
 

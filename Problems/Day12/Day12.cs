@@ -29,7 +29,8 @@ namespace AdventOfCode2022
                 return "Missing start or destination node";
             }
 
-            return ShortestPath((h1, h2) => h1 + 1 >= h2, part1StartNode, highPoint).ToString();
+            ResetNodes((h1, h2) => h1 + 1 >= h2);
+            return ShortestPath(part1StartNode, highPoint).ToString();
         }
 
         public override string Part2()
@@ -40,7 +41,8 @@ namespace AdventOfCode2022
 
             int shortestPath = int.MaxValue;
             var lowPoints = allNodes.Values.Where(x => x.height == 0);
-            ShortestPath((h1, h2) => h1 <= h2 + 1, highPoint);
+            ResetNodes((h1, h2) => h1 <= h2 + 1);
+            ShortestPath(highPoint);
 
             foreach (Node node in lowPoints) {
                 if (shortestPath > node.distFromStart) {
@@ -52,8 +54,7 @@ namespace AdventOfCode2022
         }
 
         // Djikstra with optional destination node, validNeighbour funcion takes heights and tells us if 2 nodes can be neighbours
-        protected int ShortestPath(Func<int, int, bool> validNeighbour, Node startNode, Node ?destNode = null) {
-            ResetNodes(validNeighbour);
+        protected int ShortestPath(Node startNode, Node ?destNode = null) {
             startNode.distFromStart = 0;
 
             PriorityQueue<Node, int> nodeQueue = new PriorityQueue<Node, int>();

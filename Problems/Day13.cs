@@ -5,7 +5,7 @@ namespace AdventOfCode2022
     {
         public Day13(string inputPath) : base(inputPath) {}
 
-        // Returns true if in order, false if out of order and null if no clear result
+        // Returns 1 if in order, -1 if out of order and 0 if no clear result
         protected int Compare(string[] left, string[] right) 
         {
             for (int index = 0; index < left.Length; index ++) {

@@ -55,7 +55,6 @@ namespace AdventOfCode2022
         public override string Part2()
         {
             var pos = GetDistressSignalPos();
-            Console.WriteLine("Distress signal at: " + pos);
             long tuningFreq = ((long)pos.x * 4000000) + ((long)pos.y);
             return tuningFreq.ToString();
         }

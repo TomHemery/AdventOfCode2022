@@ -83,28 +83,5 @@ namespace AdventOfCode2022
         {
             return Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
         }
-
-        protected void DrawSensorBeaconPairs()
-        {
-            for (int y = minY; y <= maxY; y++) {
-                for (int x = minX; x <= maxX; x++) {
-                    bool bOrS = false;
-                    foreach (var pair in sensorBeaconPairs) {
-                        if ((x, y) == pair.sensor) {
-                            Console.Write("S");
-                            bOrS = true;
-                            break;
-                        } else if ((x, y) == pair.beacon) {
-                            Console.Write("B");
-                            bOrS = true;
-                            break;
-                        }
-                    }
-                    if (!bOrS) Console.Write(".");
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine();
-        }
     }
 }

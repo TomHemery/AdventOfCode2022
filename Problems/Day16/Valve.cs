@@ -19,7 +19,6 @@ namespace AdventOfCode2022 {
             valveLookup[id] = this;
             this.neighbourIds = neighbourIds;
             this.flowRate = flowRate;
-            Console.WriteLine(string.Format("Constructed valve {0} with flowRate {1} and neighbours {2}", id, flowRate, String.Join(", ", neighbourIds)));
         }
 
         public void SaveNeighbours()

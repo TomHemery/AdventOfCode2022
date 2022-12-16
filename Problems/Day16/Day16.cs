@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace AdventOfCode2022
@@ -5,6 +6,8 @@ namespace AdventOfCode2022
     class Day16 : Problem
     {
         protected Valve[] allValves;
+
+        protected static Stopwatch stopwatch = new Stopwatch();
 
         public Day16(string inputPath) : base(inputPath)
         {
@@ -30,10 +33,10 @@ namespace AdventOfCode2022
         {
             List<string> usefulValves = allValves.Where(x => x.flowRate > 0).Select(x => x.id).ToList();
             Valve? curr = Valve.lookup["AA"];
-            return TryPath(curr, usefulValves, new List<string>(), 30, 0).ToString();
+            return FindFlow(curr, usefulValves, new List<string>(), 30, 0).ToString();
         }
 
-        public int TryPath(
+        protected int FindFlow(
             Valve curr, 
             List<string> closedValves, 
             List<string> openValves, 
@@ -55,14 +58,13 @@ namespace AdventOfCode2022
             int bestFuturePressureRelease = 0;
             string bestId = "";
             foreach (var valveId in closedValves) {
-                Valve next = Valve.lookup[valveId];
-                if (timeRemaining - curr.distances[next] > 0) {
-                    int pressureReleaseOnJourney = curr.distances[next] * openValves.Sum(x => Valve.lookup[x].flowRate);
-                    int futurePressureRelease = TryPath(
-                        next, 
+                if (timeRemaining - curr.distances[valveId] > 0) {
+                    int pressureReleaseOnJourney = curr.distances[valveId] * openValves.Sum(x => Valve.lookup[x].flowRate);
+                    int futurePressureRelease = FindFlow(
+                        Valve.lookup[valveId], 
                         new(closedValves), 
                         new(openValves), 
-                        timeRemaining - curr.distances[next], 
+                        timeRemaining - curr.distances[valveId], 
                         pressureReleaseOnJourney
                     );
                     if (futurePressureRelease > bestFuturePressureRelease) {
@@ -79,89 +81,98 @@ namespace AdventOfCode2022
         {
             List<string> usefulValves = allValves.Where(x => x.flowRate > 0).Select(x => x.id).ToList();
             Valve? curr = Valve.lookup["AA"];
-            return TryPathDuo(curr, curr, usefulValves, new List<string>(), 27).ToString();
+            return FindFlow("AA", "AA", usefulValves, new List<string>(), 26).ToString();
         }
 
-        public int TryPathDuo(
-            Valve curr, 
-            Valve eleCurr,
+        protected int FindFlow(
+            string curr, 
+            string eleCurr,
             List<string> closed, 
             List<string> open, 
             int timer,
             int flow = 0,
-            Valve? target = null,
+            string target = "",
             int targetDist = 0,
-            Valve? eleTarget = null,
+            string eleTarget = "",
             int eleTargetDist = 0
         ) {
-            timer--; //time ticks down every iteration
-            flow += open.Sum(x => Valve.lookup[x].flowRate); //pressure releases every iteration
-
-            if (curr == target) { // We have spent a minute opening a valve
-                target = null;
-                closed.Remove(curr.id);
-                open.Add(curr.id);
-            } else if (target != null && --targetDist == 0) { // We reached our destination
-                curr = target;
+            if (timer == 26) {
+                stopwatch.Restart();
             }
-            
-            if (eleCurr == eleTarget) { // Ele has spent a minute opening a valve
-                eleTarget = null;
-                closed.Remove(eleCurr.id);
-                open.Add(eleCurr.id);
-            } else if (eleTarget != null && --eleTargetDist == 0) { // Ele reached their destination
-                eleCurr = eleTarget;
+            if (timer == 25) { 
+                stopwatch.Stop();
+                Console.WriteLine(stopwatch.ElapsedMilliseconds + "ms, whole thing will take: " + stopwatch.ElapsedMilliseconds * 210 + "ms ish");
+                Console.WriteLine(target + ", " + eleTarget);
+                stopwatch.Restart();
             }
+            UpdateClosedOpen(ref curr, ref target, targetDist, open, closed);
+            UpdateClosedOpen(ref eleCurr, ref eleTarget, eleTargetDist, open, closed);
 
             if (closed.Count == 0 || timer == 0) { // Out of time or valves
                 return flow + timer * open.Sum(x => Valve.lookup[x].flowRate);
             }
 
             int bestFlow = flow;
-            if (target == null && eleTarget == null) { // We both need a target
-                foreach (string id in closed) {
-                    foreach (string eleId in closed) {
-                        if (id != eleId) {
-                            int testFlow = TryPathDuo(
-                                curr, eleCurr, new(closed), new(open), timer, flow, Valve.lookup[id], curr.distances[Valve.lookup[id]], Valve.lookup[eleId], eleCurr.distances[Valve.lookup[eleId]]
-                            );
-                            if (testFlow > bestFlow) {
-                                bestFlow = testFlow;
-                            }
+            if (target == "" && eleTarget == "" && closed.Count >= 2) { // We both need a target
+                foreach (var (id, i) in closed.Select((id, i) => (id, i))) {
+                    foreach (var eleId in closed.Where(x => x != id)) {
+                        if (id == eleId) {
+                            continue;
+                        }
+                        int testFlow = FindFlow(
+                            curr, eleCurr, new(closed), new(open), timer - 1, flow + getFlow(open), id, Valve.lookup[curr].distances[id] - 1, eleId, Valve.lookup[eleCurr].distances[eleId] - 1
+                        );
+                        if (testFlow > bestFlow) {
+                            bestFlow = testFlow;
                         }
                     }
                 }
-            } else if (eleTarget != null && target == null) { // We need target, ele moving
-                foreach (string id in closed.Where(x => x != eleTarget.id)) {
-                    int testFlow = TryPathDuo(
-                        curr, eleCurr, new(closed), new(open), timer, flow, Valve.lookup[id], curr.distances[Valve.lookup[id]], eleTarget, eleTargetDist
+                return bestFlow;
+            } else if (target == "" && (eleTarget != "" && closed.Count >= 2 || eleTarget == "" && closed.Count >= 1)) { // We need target and it can't be where ele is going
+                foreach (string id in closed.Where(x => x != eleTarget)) {
+                    int testFlow = FindFlow(
+                        curr, eleCurr, new(closed), new(open), timer - 1, flow + getFlow(open), id, Valve.lookup[curr].distances[id] - 1, eleTarget, eleTargetDist - 1
                     );
                     if (testFlow > bestFlow) {
                         bestFlow = testFlow;
                     }
                 }
-            } else if (target != null && eleTarget == null) { // Ele needs target, we are moving
-                foreach (string id in closed.Where(x => x != target.id)) {
-                    int testFlow = TryPathDuo(
-                        curr, eleCurr, new(closed), new(open), timer, flow, target, targetDist, Valve.lookup[id], eleCurr.distances[Valve.lookup[id]]
+                return bestFlow;
+            } else if (eleTarget == "" && (target != "" && closed.Count >= 2 || target == "" && closed.Count >= 1)) { // Ele needs target and it can't be where we're going
+                foreach (string id in closed.Where(x => x != target)) {
+                    int testFlow = FindFlow(
+                        curr, eleCurr, new(closed), new(open), timer - 1, flow + getFlow(open), target, targetDist - 1, id, Valve.lookup[eleCurr].distances[id] - 1
                     );
                     if (testFlow > bestFlow) {
                         bestFlow = testFlow;
                     }
                 }
-            } else { // Both moving
-                int movementFlow = 0;
-                if (targetDist > 0 && eleTargetDist > 0) {
-                    // Skip time where both parties are just walking, leaving 1 walk duration left on the shorter path
-                    int elapsed = Math.Min(targetDist, eleTargetDist) - 1;
-                    targetDist -= elapsed;
-                    eleTargetDist -= elapsed;
-                    timer -= elapsed;
-                    movementFlow = elapsed * open.Sum(x => Valve.lookup[x].flowRate);
-                }
-                bestFlow = TryPathDuo(curr, eleCurr, new(closed), new(open), timer, flow + movementFlow, target, targetDist, eleTarget, eleTargetDist);
+                return bestFlow;
+            } 
+
+            // Skip time where both parties are just walking. 1 time step always passes.
+            int elapsed = Math.Max(1, Math.Min(targetDist, eleTargetDist));
+            if (elapsed >= timer) elapsed = timer;
+            targetDist -= elapsed;
+            eleTargetDist -= elapsed;
+            timer -= elapsed;
+            return FindFlow(curr, eleCurr, closed, open, timer, flow + elapsed * getFlow(open), target, targetDist, eleTarget, eleTargetDist);
+        }
+
+        protected void UpdateClosedOpen(ref string curr, ref string target, int targetDist, List<string> open, List<string> closed) 
+        {
+            if (curr == target) { // We have spent a minute opening a valve
+                target = "";
+                closed.Remove(curr);
+                open.Add(curr);
+            } else if (target != "" && targetDist <= 0) { // We reached our destination
+                curr = target;
             }
-            return bestFlow;
+        }
+
+        protected int getFlow(List<string> open)
+        {
+            return open.Sum(x => Valve.lookup[x].flowRate);
         }
     }
 }

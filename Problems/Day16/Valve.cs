@@ -3,7 +3,7 @@ namespace AdventOfCode2022 {
     class Valve
     {
         public static Dictionary<string, Valve> lookup = new();
-        public Dictionary<Valve, int> distances = new();
+        public Dictionary<string, int> distances = new();
         public int flowRate;
         public List<Valve> neighbours = new();
         public string id {get; protected set;}
@@ -57,7 +57,7 @@ namespace AdventOfCode2022 {
             }
 
             foreach (Valve v in lookup.Values) {
-                this.distances[v] = v.distFromStart;
+                this.distances[v.id] = v.distFromStart;
             }
         }
 

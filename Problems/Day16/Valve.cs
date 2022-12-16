@@ -2,8 +2,8 @@ using System.Text;
 namespace AdventOfCode2022 {
     class Valve
     {
-        public static Dictionary<string, Valve> valveLookup = new();
-        public Dictionary<Valve, int> distanceToOthers = new();
+        public static Dictionary<string, Valve> lookup = new();
+        public Dictionary<Valve, int> distances = new();
         public int flowRate;
         public List<Valve> neighbours = new();
         public string id {get; protected set;}
@@ -16,7 +16,7 @@ namespace AdventOfCode2022 {
         public Valve(string id, int flowRate, string[] neighbourIds)
         {
             this.id = id;
-            valveLookup[id] = this;
+            lookup[id] = this;
             this.neighbourIds = neighbourIds;
             this.flowRate = flowRate;
         }
@@ -24,13 +24,13 @@ namespace AdventOfCode2022 {
         public void SaveNeighbours()
         {
             foreach (string id in neighbourIds) {
-                this.neighbours.Add(valveLookup[id]);
+                this.neighbours.Add(lookup[id]);
             }
         }
 
         public void CalculateDistances() // hello day 12
         {
-            foreach (Valve v in valveLookup.Values) {
+            foreach (Valve v in lookup.Values) {
                 v.visited = false;
                 v.distFromStart = int.MaxValue;
             }
@@ -56,8 +56,8 @@ namespace AdventOfCode2022 {
                 }
             }
 
-            foreach (Valve v in valveLookup.Values) {
-                this.distanceToOthers[v] = v.distFromStart;
+            foreach (Valve v in lookup.Values) {
+                this.distances[v] = v.distFromStart;
             }
         }
 

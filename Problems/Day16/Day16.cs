@@ -6,7 +6,6 @@ namespace AdventOfCode2022
     {
         protected Valve[] allValves;
 
-        protected int operations = 0;
         public Day16(string inputPath) : base(inputPath)
         {
             allValves = new Valve[puzzleInputLines.Length];
@@ -34,6 +33,11 @@ namespace AdventOfCode2022
             return TryPath(curr, usefulValves, new List<string>(), 30, 0).ToString();
         }
 
+        public override string Part2()
+        {
+            throw new NotImplementedException();
+        }
+
         public int TryPath(
             Valve curr, 
             List<string> closedValves, 
@@ -41,7 +45,6 @@ namespace AdventOfCode2022
             int timeRemaining, 
             int pressureRelease
         ) {
-            operations++;
             if (curr.flowRate > 0) {
                 timeRemaining -= 1;
                 pressureRelease += openValves.Sum(x => Valve.valveLookup[x].flowRate);
@@ -68,18 +71,13 @@ namespace AdventOfCode2022
                         pressureReleaseOnJourney
                     );
                     if (futurePressureRelease > bestFuturePressureRelease) {
-                         bestFuturePressureRelease = futurePressureRelease;
-                         bestId = valveId;
+                        bestFuturePressureRelease = futurePressureRelease;
+                        bestId = valveId;
                     }
                 }
             }
 
             return pressureRelease + bestFuturePressureRelease;
-        }
-
-        public override string Part2()
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -63,13 +63,7 @@ namespace AdventOfCode2022 {
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(String.Format("Valve {0} with flowRate {1}\n", this.id, this.flowRate));
-            foreach (var kvp in distanceToOthers)
-            {
-                builder.Append(String.Format("\tValve {0} is {1} away\n", kvp.Key.id, kvp.Value));
-            }
-            return builder.ToString();
+            return String.Format("Valve {0} with flowRate {1}");
         }
     }
 }

@@ -1,4 +1,3 @@
-using System.Net;
 using System.Text.RegularExpressions;
 
 namespace AdventOfCode2022
@@ -6,6 +5,8 @@ namespace AdventOfCode2022
     class Day16 : Problem
     {
         protected Valve[] allValves;
+
+        protected int operations = 0;
         public Day16(string inputPath) : base(inputPath)
         {
             allValves = new Valve[puzzleInputLines.Length];
@@ -26,47 +27,54 @@ namespace AdventOfCode2022
             }
         }
 
-        protected int AdvanceTime(ref int timeRemaining, int elapsed, List<Valve> openValves)
-        {
-            int pressureRelease = 0;
-            for (; elapsed > 0; elapsed --) {
-                timeRemaining--;
-                foreach (Valve valve in openValves) {
-                    pressureRelease += valve.flowRate;
-                }
-                Console.WriteLine(timeRemaining + ": " + pressureRelease);
-            }
-            return pressureRelease;
-        }
-
         public override string Part1()
         {
-            List<Valve> usefulValves = allValves.Where(x => x.flowRate > 0).ToList();
-            List<Valve> openValves = new();
+            List<string> usefulValves = allValves.Where(x => x.flowRate > 0).Select(x => x.id).ToList();
             Valve? curr = Valve.valveLookup["AA"];
-            int timeRemaining = 30;
-            int pressureRelease = 0;
-            while (timeRemaining > 0 && usefulValves.Count > 0 && curr != null)
-            {
-                int bestValue = int.MinValue;
-                Valve? bestValve = null;
+            return TryPath(curr, usefulValves, new List<string>(), 30, 0).ToString();
+        }
 
-                foreach (Valve other in usefulValves) {
-                    // value of another valve is the time it has to vent pressure, t remaining minus time to get there minus 1 minute to open
-                    int value = (timeRemaining - curr.distanceToOthers[other] - 1) * other.flowRate;
-                    if (value > bestValue) {
-                        bestValue = value;
-                        bestValve = other;
+        public int TryPath(
+            Valve curr, 
+            List<string> closedValves, 
+            List<string> openValves, 
+            int timeRemaining, 
+            int pressureRelease
+        ) {
+            operations++;
+            if (curr.flowRate > 0) {
+                timeRemaining -= 1;
+                pressureRelease += openValves.Sum(x => Valve.valveLookup[x].flowRate);
+
+                closedValves.Remove(curr.id);
+                openValves.Add(curr.id);
+            }
+
+            if (closedValves.Count == 0 || timeRemaining == 0) {
+                return pressureRelease + timeRemaining * openValves.Sum(x => Valve.valveLookup[x].flowRate);
+            }
+
+            int bestFuturePressureRelease = 0;
+            string bestId = "";
+            foreach (var valveId in closedValves) {
+                Valve next = Valve.valveLookup[valveId];
+                if (timeRemaining - curr.distanceToOthers[next] > 0) {
+                    int pressureReleaseOnJourney = curr.distanceToOthers[next] * openValves.Sum(x => Valve.valveLookup[x].flowRate);
+                    int futurePressureRelease = TryPath(
+                        next, 
+                        new(closedValves), 
+                        new(openValves), 
+                        timeRemaining - curr.distanceToOthers[next], 
+                        pressureReleaseOnJourney
+                    );
+                    if (futurePressureRelease > bestFuturePressureRelease) {
+                         bestFuturePressureRelease = futurePressureRelease;
+                         bestId = valveId;
                     }
                 }
-                Console.WriteLine(string.Format("At valve {0}, moving to valve {1}", curr.id, bestValve.id));
-                pressureRelease += AdvanceTime(ref timeRemaining, curr.distanceToOthers[bestValve], openValves); // time to move to other valve
-                usefulValves.Remove(bestValve);
-                openValves.Add(bestValve);
-                pressureRelease += AdvanceTime(ref timeRemaining, 1, openValves); // time to open valve
-                curr = bestValve;
             }
-            return pressureRelease.ToString();
+
+            return pressureRelease + bestFuturePressureRelease;
         }
 
         public override string Part2()

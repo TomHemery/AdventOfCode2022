@@ -1,4 +1,6 @@
 using System.Text.RegularExpressions;
+using AdventOfCode2022.Helpers;
+
 namespace AdventOfCode2022 
 {
     class Day15 : Problem
@@ -17,7 +19,7 @@ namespace AdventOfCode2022
                 var values = Regex.Matches(line, @"[0-9\-]+").Select(x => int.Parse(x.Value)).ToArray();
                 (int, int) sensorPos = (values[0], values[1]);
                 (int, int) beaconPos = (values[2], values[3]);
-                int dist = ManhattanDist(sensorPos, beaconPos);
+                int dist = VectorMaths.ManhattanDist(sensorPos, beaconPos);
                 sensorBeaconPairs[i] = (sensorPos, beaconPos, dist);
 
                 // uff
@@ -43,7 +45,7 @@ namespace AdventOfCode2022
                     if (pair.sensor == (x, y) || pair.beacon == (x, y)) {
                         break; // beacon or sensor already here, doesn't count
                     }
-                    if (ManhattanDist(pair.sensor, (x, y)) <= pair.dist) {
+                    if (VectorMaths.ManhattanDist(pair.sensor, (x, y)) <= pair.dist) {
                         impossibleCount++;
                         break;
                     }
@@ -65,7 +67,7 @@ namespace AdventOfCode2022
                 for (int x = 0; x <= 4000000; x++) {
                     bool impossible = false;
                     foreach (var pair in sensorBeaconPairs) {
-                        if (ManhattanDist(pair.sensor, (x, y)) <= pair.dist) {
+                        if (VectorMaths.ManhattanDist(pair.sensor, (x, y)) <= pair.dist) {
                             impossible = true;
                             // skip sensor range
                             x = pair.sensor.x + pair.dist - Math.Abs(pair.sensor.y - y);
@@ -76,11 +78,6 @@ namespace AdventOfCode2022
                 }
             }
             throw new Exception("No distress signal position found");
-        }
-
-        protected int ManhattanDist((int x, int y) a, (int x, int y) b)
-        {
-            return Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
         }
     }
 }

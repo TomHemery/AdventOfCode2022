@@ -21,7 +21,7 @@ namespace AdventOfCode2022
         };
 
         protected char[,] shape;
-        protected Dictionary<(int index, string topRow), int> history;
+        protected Dictionary<(int index, string topRow), int> history; // used for loop finding
         protected (int x, int y) position; // bottom left corner
         
 

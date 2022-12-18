@@ -1,3 +1,5 @@
+using AdventOfCode2022.Helpers;
+
 namespace AdventOfCode2022
 {
     class Day14 : Problem
@@ -39,7 +41,7 @@ namespace AdventOfCode2022
         {
             (int x, int y) sandPosition = startPoint;
             while (useFloor ? sandPosition.y < floorHeight - 1: sandPosition.y <= maxY) {
-                (int x, int y) next = VectorSum(sandPosition, (0, 1));
+                (int x, int y) next = VectorMaths.Sum(sandPosition, (0, 1));
                 if (!caveMap.ContainsKey(next)) {
                     sandPosition = next;
                     continue;
@@ -122,14 +124,9 @@ namespace AdventOfCode2022
                 (0, Math.Sign(end.y - start.y));
             caveMap[start] = '#';
             while (start != end) {
-                start = VectorSum(start, step);
+                start = VectorMaths.Sum(start, step);
                 caveMap[start] = '#';
             }
-        }
-
-        protected (int x, int y) VectorSum((int x, int y) a, (int x, int y) b)
-        {
-            return (a.x + b.x, a.y + b.y);
         }
     }
 }

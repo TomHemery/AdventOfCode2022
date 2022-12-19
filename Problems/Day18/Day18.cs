@@ -7,7 +7,6 @@ namespace AdventOfCode2022
         Dictionary<(int x, int y, int z), Cube> allCubes = new();
         int minDim = -1;
         int maxDim = 22;
-        (int x, int y, int z) exteriorPoint = (-1, -1, -1);
 
         (int x, int y, int z)[] offsetPoints = {
             (-1, 0, 0),

@@ -1,4 +1,3 @@
-using System.Net.Sockets;
 namespace AdventOfCode2022
 {
     class Monkey

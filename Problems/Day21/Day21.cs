@@ -71,16 +71,6 @@ namespace AdventOfCode2022
                 left = rootMonkey.GetLeftValue();
                 right = rootMonkey.GetRightValue();
             }
-            Decimal start = human.value;
-            while (left == right) {
-                human.value++;
-                left = rootMonkey.GetLeftValue();
-            } 
-            human.value = start;
-            while (left == right) {
-                human.value--;
-                left = rootMonkey.GetLeftValue();
-            } 
             
             return Math.Round(human.value).ToString();
         }

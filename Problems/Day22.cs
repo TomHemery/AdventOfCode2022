@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Text.RegularExpressions;
 using AdventOfCode2022.Helpers;
 
@@ -19,11 +18,13 @@ namespace AdventOfCode2022
         public Day22(string inputPath) : base(inputPath)
         {
             string[] boardLines = rawPuzzleInput.Split("\n\n")[0].Split("\n");
-            maxY = boardLines[1].Length - 1;
+            maxY = boardLines.Length;
             for (int y = 0; y < boardLines.Length; y++) {
                 maxX = maxX < boardLines[y].Length - 1 ? boardLines[y].Length - 1: maxX;
                 for (int x = 0; x < boardLines[y].Length; x++) {
-                    map[(x, y)] = boardLines[y][x];
+                    if(boardLines[y][x] != ' '){ // ignore empty space
+                        map[(x, y)] = boardLines[y][x];
+                    }
                 }
             }
 
@@ -83,42 +84,20 @@ namespace AdventOfCode2022
         public override string Part1()
         {
             Wrap(ref position, heading);
-
-            // DEBUG
-            history[position] = heading;
-            PrintMap(map, history, position);
-            // DEBUG
-
+            
             foreach (var move in moves) {
-                // DEBUG
-                Console.WriteLine(position + " :: " + heading + " ==> " + move);
-                // DEBUG
-
                 for (int i = 0; i < move.dist; i++) {
                     (int x, int y) next = VectorMaths.Add(position, heading);
                     Wrap(ref next, heading);
                     if (map[next] == '.') {
                         position = next;
                     } else if (map[next] == '#') {
-                        Console.WriteLine("Hit a wall at " + next);
                         break;
                     }
                     history[position] = heading;
                 }
                 heading = GetNewHeading(heading, move);
-
-                // DEBUG
-                history[position] = heading;
-                PrintMap(map, history, position);
-                Console.WriteLine(position + " :: " + heading);
-                Console.ReadKey();
-                // DEBUG
             }
-            
-            // DEBUG
-            Console.WriteLine(position + " :: " + heading);
-            // DEBUG
-
             return (1000 * (position.y + 1) + 4 * (position.x + 1) + GetFacingValue(heading)).ToString();
         }
 

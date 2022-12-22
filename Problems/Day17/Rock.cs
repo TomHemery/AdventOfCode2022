@@ -41,7 +41,7 @@ namespace AdventOfCode2022
             for (int y = 0; y < shape.GetLength(0); y++) {
                 for (int x = 0; x < shape.GetLength(1); x++) {
                     if (shape[y, x] == '#') {
-                        cave[VectorMaths.Sum(position, (x, y))] = '#';
+                        cave[VectorMaths.Add(position, (x, y))] = '#';
                     }
                 }
             }
@@ -59,7 +59,7 @@ namespace AdventOfCode2022
         protected void ApplyJet(char jetDir, Dictionary<(int x, int y), char> cave) 
         {
             (int x, int y) jet = jetDir == '>' ? (1, 0) : (-1, 0);
-            (int x, int y) newPosition = VectorMaths.Sum(position, jet);
+            (int x, int y) newPosition = VectorMaths.Add(position, jet);
 
             if (jetDir == '<' && newPosition.x < 0) { // hit cave wall
                 return;
@@ -83,7 +83,7 @@ namespace AdventOfCode2022
 
         protected bool MoveDown(Dictionary<(int x, int y), char> cave)
         {
-            (int x, int y) newPosition = VectorMaths.Sum(position, (0, -1));
+            (int x, int y) newPosition = VectorMaths.Add(position, (0, -1));
 
             if (newPosition.y <= 0) { // hit cave floor
                 return false;

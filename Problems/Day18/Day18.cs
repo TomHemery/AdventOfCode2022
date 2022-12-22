@@ -71,7 +71,7 @@ namespace AdventOfCode2022
                 (int x, int y, int z) curr = openSet.Dequeue();
 
                 foreach((int x, int y, int z) offset in offsetPoints) {
-                    (int x, int y, int z) neighbour = VectorMaths.Sum(curr, offset);
+                    (int x, int y, int z) neighbour = VectorMaths.Add(curr, offset);
                     if (allCubes.ContainsKey(neighbour)) { // cube here
                         continue;
                     }

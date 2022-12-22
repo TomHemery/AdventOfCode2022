@@ -18,7 +18,7 @@ namespace AdventOfCode2022
         public Day22(string inputPath) : base(inputPath)
         {
             string[] boardLines = rawPuzzleInput.Split("\n\n")[0].Split("\n");
-            maxY = boardLines.Length;
+            maxY = boardLines.Length - 1;
             for (int y = 0; y < boardLines.Length; y++) {
                 maxX = maxX < boardLines[y].Length - 1 ? boardLines[y].Length - 1: maxX;
                 for (int x = 0; x < boardLines[y].Length; x++) {
@@ -89,7 +89,7 @@ namespace AdventOfCode2022
                 for (int i = 0; i < move.dist; i++) {
                     (int x, int y) next = VectorMaths.Add(position, heading);
                     Wrap(ref next, heading);
-                    if (map[next] == '.') {
+                    if (map[next] == '.') { 
                         position = next;
                     } else if (map[next] == '#') {
                         break;
